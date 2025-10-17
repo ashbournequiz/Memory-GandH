@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Words starting with 'G' and 'H' - Vocabulary Memory Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      max-width: 800px;
+      margin: 20px auto;
+    }
+
+    .card {
+      background-color: #4caf50;
+      color: white;
+      border-radius: 8px;
+      padding: 20px;
+      cursor: pointer;
+      height: 100px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+      transition: background-color 0.3s, transform 0.3s;
+      user-select: none;
+    }
+
+    .card.flipped {
+      background-color: #ffffff;
+      color: #333;
+      cursor: default;
+      transform: scale(1.05);
+    }
+
+    .card.matched {
+      background-color: #9ccc65;
+      color: #333;
+      cursor: default;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🧠 Vocabulary Memory Game – Words Starting with 'G' and 'H'</h1>
+<p>Match each word to its definition!</p>
+
+<h2 id="round-title">Round 1</h2>
+<div id="game-board"></div>
+<div id="status">Matches: 0 / 8</div>
+
+<script>
+  const allWords = [
+    { word: "Generate", def: "To produce or create something" },
+    { word: "Grant", def: "To give something formally (like permission, money, or a right)" },
+    { word: "Guarantee", def: "A promise that something will happen or be true." },
+    { word: "Guideline", def: "A rule or piece of advice." },
+    { word: "Hence", def: "For this reason; therefore" },
+    { word: "Hierarchy", def: "A system where people or things are ranked from highest to lowest." },
+    { word: "Highlight", def: "To make something stand out or be noticed." },
+    { word: "Hypothesis", def: "An idea or guess that you can test through study or experiments" }
+  ];
+
+  let matchedPairs = 0;
+  let flippedCards = [];
+
+  const board = document.getElementById('game-board');
+  const status = document.getElementById('status');
+
+  const shuffle = (array) => array.sort(() => Math.random() - 0.5);
+
+  function loadRound() {
+    board.innerHTML = "";
+    matchedPairs = 0;
+    flippedCards = [];
+    status.textContent = `Matches: 0 / ${allWords.length}`;
+
+    const cards = [];
+    allWords.forEach((pair, index) => {
+      cards.push({ id: index, type: 'word', content: pair.word });
+      cards.push({ id: index, type: 'def', content: pair.def });
+    });
+
+    shuffle(cards);
+
+    cards.forEach((card, index) => createCard(card, index));
+  }
+
+  function createCard(card, index) {
+    const div = document.createElement('div');
+    div.classList.add('card');
+    div.dataset.id = card.id;
+    div.dataset.type = card.type;
+    div.dataset.index = index;
+    div.textContent = "";
+
+    div.addEventListener('click', () => {
+      if (
+        div.classList.contains('flipped') ||
+        div.classList.contains('matched') ||
+        flippedCards.length === 2
+      ) return;
+
+      div.classList.add('flipped');
+      div.textContent = card.content;
+      flippedCards.push({ element: div, card });
+
+      if (flippedCards.length === 2) {
+        checkForMatch();
+      }
+    });
+
+    board.appendChild(div);
+  }
+
+  function checkForMatch() {
+    const [first, second] = flippedCards;
+
+    if (
+      first.card.id === second.card.id &&
+      first.card.type !== second.card.type
+    ) {
+      first.element.classList.add('matched');
+      second.element.classList.add('matched');
+      matchedPairs++;
+      status.textContent = `Matches: ${matchedPairs} / ${allWords.length}`;
+
+      if (matchedPairs === allWords.length) {
+        status.textContent = "🎉 You've matched all pairs! Great job!";
+      }
+
+      flippedCards = [];
+    } else {
+      setTimeout(() => {
+        first.element.classList.remove('flipped');
+        second.element.classList.remove('flipped');
+        first.element.textContent = "";
+        second.element.textContent = "";
+        flippedCards = [];
+      }, 1000);
+    }
+  }
+
+  // Start game
+  loadRound();
+</script>
+
+</body>
+</html>
